@@ -1,4 +1,3 @@
-library(plyr)
 library(dplyr)
 library(tidyr)
 library(reshape2)
@@ -7,7 +6,7 @@ library(reshape2)
 threeyear <- read.csv('ThreeYearData.csv')
 fouryear <- read.csv('FourYearData.csv')
 
-##Format data for county baded model
+##Format data for county based model
 threecountymodeldata <- melt(threeyear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
 fourcountymodeldata <- melt(fouryear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
 
@@ -20,3 +19,22 @@ colnames(fourcountymodeldata)[4] <- 'LINT_YIELD'
 threecountymodeldata<-dcast(threecountymodeldata, location+variety~year)
 fourcountymodeldata<-dcast(fourcountymodeldata, location+variety~year)
 twocountymodeldata<-select(threecountymodeldata, c("location", "variety", "2018", "2019"))
+
+colnames(threecountymodeldata)[3] <- '2017_yield'
+colnames(threecountymodeldata)[4] <- '2018_yield'
+colnames(threecountymodeldata)[5] <- '2019_yield'
+
+colnames(fourcountymodeldata)[3] <- '2016_yield'
+colnames(fourcountymodeldata)[4] <- '2017_yield'
+colnames(fourcountymodeldata)[5] <- '2018_yield'
+colnames(fourcountymodeldata)[6] <- '2019_yield'
+
+colnames(twocountymodeldata)[3] <- '2018_yield'
+colnames(twocountymodeldata)[4] <- '2019_yield'
+
+##Format Data for State Avg Model
+threestatemodeldata <- threecountymodeldata %>% group_by(variety) %>% summarize(mean_2017 = mean(`2017_yield`, na.rm = TRUE), mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
+
+fourstatemodeldata <- fourcountymodeldata %>% group_by(variety) %>% summarize(mean_2016 = mean(`2016_yield`, na.rm = TRUE),mean_2017 = mean(`2017_yield`, na.rm = TRUE), mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
+
+twostatemodeldata <- twocountymodeldata %>% group_by(variety) %>% summarize(mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
