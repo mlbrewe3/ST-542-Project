@@ -1,0 +1,22 @@
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+
+##Read in data
+threeyear <- read.csv('ThreeYearData.csv')
+fouryear <- read.csv('FourYearData.csv')
+
+##Format data for county baded model
+threecountymodeldata <- melt(threeyear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
+fourcountymodeldata <- melt(fouryear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
+
+threecountymodeldata$variable <- NULL
+fourcountymodeldata$variable <- NULL
+
+colnames(threecountymodeldata)[4] <- 'LINT_YIELD'
+colnames(fourcountymodeldata)[4] <- 'LINT_YIELD'
+
+threecountymodeldata<-dcast(threecountymodeldata, location+variety~year)
+fourcountymodeldata<-dcast(fourcountymodeldata, location+variety~year)
+twocountymodeldata<-select(threecountymodeldata, c("location", "variety", "2018", "2019"))
