@@ -1,40 +1,83 @@
 library(dplyr)
 library(tidyr)
 library(reshape2)
+library(tidyverse)
+library(broom)
+library(lme4)
 
 ##Read in data
 threeyear <- read.csv('ThreeYearData.csv')
 fouryear <- read.csv('FourYearData.csv')
 
 ##Format data for county based model
-threecountymodeldata <- melt(threeyear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
-fourcountymodeldata <- melt(fouryear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
+threeyear <- melt(threeyear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
+fouryear <- melt(fouryear, id.vars = c("location", "variety","year"), measure.vars = c( "LINT_YIELD"))
 
-threecountymodeldata$variable <- NULL
-fourcountymodeldata$variable <- NULL
+threeyear$variable <- NULL
+fouryear$variable <- NULL
 
-colnames(threecountymodeldata)[4] <- 'LINT_YIELD'
-colnames(fourcountymodeldata)[4] <- 'LINT_YIELD'
+colnames(threeyear)[4] <- 'LINT_YIELD'
+colnames(fouryear)[4] <- 'LINT_YIELD'
 
-threecountymodeldata<-dcast(threecountymodeldata, location+variety~year)
-fourcountymodeldata<-dcast(fourcountymodeldata, location+variety~year)
-twocountymodeldata<-select(threecountymodeldata, c("location", "variety", "2018", "2019"))
+threeyearcountymodeldata <- filter(threeyear, year != 2019)
+twoyearcountymodeldata <- filter(threeyearcountymodeldata, year != 2017)
+fouryearcountymodeldata <- filter(fouryear, year != 2019)
 
-colnames(threecountymodeldata)[3] <- '2017_yield'
-colnames(threecountymodeldata)[4] <- '2018_yield'
-colnames(threecountymodeldata)[5] <- '2019_yield'
+threeyear2019county <- filter(threeyear, year == 2019)
+fouryear2019county <- filter(fouryear, year == 2019)
+twoyear2019county <- filter(threeyear2019county, location != "Rowan")
 
-colnames(fourcountymodeldata)[3] <- '2016_yield'
-colnames(fourcountymodeldata)[4] <- '2017_yield'
-colnames(fourcountymodeldata)[5] <- '2018_yield'
-colnames(fourcountymodeldata)[6] <- '2019_yield'
+##Format Data for State based model
+threeyearstateavg <- threeyearcountymodeldata %>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
 
-colnames(twocountymodeldata)[3] <- '2018_yield'
-colnames(twocountymodeldata)[4] <- '2019_yield'
+fouryearstateavg <- fouryearcountymodeldata %>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
 
-##Format Data for State Avg Model
-threestatemodeldata <- threecountymodeldata %>% group_by(variety) %>% summarize(mean_2017 = mean(`2017_yield`, na.rm = TRUE), mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
+twoyearstateavg <- twoyearcountymodeldata %>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
 
-fourstatemodeldata <- fourcountymodeldata %>% group_by(variety) %>% summarize(mean_2016 = mean(`2016_yield`, na.rm = TRUE),mean_2017 = mean(`2017_yield`, na.rm = TRUE), mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
+threeyear2019stateavg <- threeyear2019county %>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
 
-twostatemodeldata <- twocountymodeldata %>% group_by(variety) %>% summarize(mean_2018 = mean(`2018_yield`, na.rm = TRUE), mean_2019 = mean(`2019_yield`, na.rm = TRUE))
+fouryear2019stateavg <- fouryear2019county%>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
+
+twoyear2019stateavg <- twoyear2019county %>% group_by(variety, year) %>% summarise(Avg_Lint_Yield = mean(LINT_YIELD))
+
+
+
+##Models
+fouryearcountymodel <- glm(data = fouryearcountymodeldata , LINT_YIELD ~ year + variety + location)
+
+threeyearcountymodel <- glm(data = threeyearcountymodeldata, LINT_YIELD ~ year + variety + location)
+
+twoyearcountymodel <- glm(data = twoyearcountymodeldata, LINT_YIELD ~ year + variety + location)
+
+fouryearstatemodel <- glm(data = fouryearstateavg, Avg_Lint_Yield ~ year + variety)
+
+threeyearstatemodel <- glm(data = threeyearstateavg, Avg_Lint_Yield ~ year + variety)
+
+twoyearstatemodel <- glm(data = twoyearstateavg, Avg_Lint_Yield ~ year + variety)
+
+##Predictions for county
+fouryearcountyped <- predict(fouryearcountymodel, fouryear2019county)
+
+fouryearcountyvalues <- mutate(fouryear2019county, ped = fouryearcountyped)
+
+threeyearcountyped <- predict(threeyearcountymodel, threeyear2019county)
+
+threeyearcountyvalues <- mutate(threeyear2019county, ped = threeyearcountyped)
+
+twoyearcountyped <- predict(twoyearcountymodel, twoyear2019county)
+
+twoyearcountyvalues <- mutate(twoyear2019county, ped = twoyearcountyped)
+
+
+##Predictions for state
+fouryearstateped <- predict(fouryearstatemodel, fouryear2019stateavg)
+
+fouryearstatevalues <- mutate(fouryear2019stateavg, ped = fouryearstateped)
+
+threeyearstateped <- predict(threeyearstatemodel, threeyear2019stateavg)
+
+threeyearstatevalues <- mutate(threeyear2019stateavg, ped = threeyearstateped)
+
+twoyearstateped <- predict(twoyearstatemodel, twoyear2019stateavg)
+
+twoyearstatevalues <- mutate(twoyear2019stateavg, ped = twoyearstateped)
