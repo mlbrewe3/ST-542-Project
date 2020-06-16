@@ -2,8 +2,8 @@ library(dplyr)
 library(tidyr)
 library(reshape2)
 library(tidyverse)
-library(broom)
 library(lme4)
+library(mltools)
 
 ##Read in data
 threeyear <- read.csv('ThreeYearData.csv')
@@ -81,3 +81,44 @@ threeyearstatevalues <- threeyear2019stateavg %>% ungroup() %>% mutate(ped = thr
 twoyearstateped <- predict(twoyearstatemodel, twoyear2019stateavg)
 
 twoyearstatevalues <- twoyear2019stateavg %>% ungroup() %>% mutate(ped = twoyearstateped)
+
+
+##Find MSEs
+fouryearcountymse<-mse(fouryearcountyvalues$ped, fouryearcountyvalues$LINT_YIELD)
+threeyearcountymse<-mse(threeyearcountyvalues$ped, threeyearcountyvalues$LINT_YIELD)
+twoyearcountymse<-mse(twoyearcountyvalues$ped, twoyearcountyvalues$LINT_YIELD)
+fouryearstatemse<-mse(fouryearstatevalues$ped, fouryearstatevalues$Avg_Lint_Yield)
+threeyearstatemse<-mse(threeyearstatevalues$ped, threeyearstatevalues$Avg_Lint_Yield)
+twoyearstatemse<-mse(twoyearstatevalues$ped, twoyearstatevalues$Avg_Lint_Yield)
+
+MSEtable <- data.frame()
+
+MSEtable[1,1] <- "Model"
+
+MSEtable[1,2] <- "MSE"
+
+MSEtable[2,1] <- 'Four Year County'
+
+MSEtable[3,1] <- 'Three Year County'
+
+MSEtable[4,1] <-'Two Year County'
+
+MSEtable[5,1] <- 'Four Year State'
+
+MSEtable[6,1] <- 'Three Year State'
+
+MSEtable[7,1] <- 'Two Year State'
+
+MSEtable[2,2] <- round(fouryearcountymse)
+
+MSEtable[3,2] <- round(threeyearcountymse)
+
+MSEtable[4,2] <- round(twoyearcountymse)
+
+MSEtable[5,2] <- round(fouryearstatemse)
+
+MSEtable[6,2] <- round(threeyearstatemse)
+
+MSEtable[7,2] <- round(twoyearstatemse)
+
+MSEtable
