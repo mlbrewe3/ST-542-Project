@@ -122,3 +122,43 @@ MSEtable[6,2] <- round(threeyearstatemse)
 MSEtable[7,2] <- round(twoyearstatemse)
 
 MSEtable
+
+##Find RMSEs
+fouryearcountyrmse<-rmse(fouryearcountyvalues$ped, fouryearcountyvalues$LINT_YIELD)
+threeyearcountyrmse<-rmse(threeyearcountyvalues$ped, threeyearcountyvalues$LINT_YIELD)
+twoyearcountyrmse<-rmse(twoyearcountyvalues$ped, twoyearcountyvalues$LINT_YIELD)
+fouryearstatermse<-rmse(fouryearstatevalues$ped, fouryearstatevalues$Avg_Lint_Yield)
+threeyearstatermse<-rmse(threeyearstatevalues$ped, threeyearstatevalues$Avg_Lint_Yield)
+twoyearstatermse<-rmse(twoyearstatevalues$ped, twoyearstatevalues$Avg_Lint_Yield)
+
+RMSEtable <- data.frame()
+
+RMSEtable[1,1] <- "Model"
+
+RMSEtable[1,2] <- "RMSE"
+
+RMSEtable[2,1] <- 'Four Year County'
+
+RMSEtable[3,1] <- 'Three Year County'
+
+RMSEtable[4,1] <-'Two Year County'
+
+RMSEtable[5,1] <- 'Four Year State'
+
+RMSEtable[6,1] <- 'Three Year State'
+
+RMSEtable[7,1] <- 'Two Year State'
+
+RMSEtable[2,2] <- round(fouryearcountyrmse)
+
+RMSEtable[3,2] <- round(threeyearcountyrmse)
+
+RMSEtable[4,2] <- round(twoyearcountyrmse)
+
+RMSEtable[5,2] <- round(fouryearstatermse)
+
+RMSEtable[6,2] <- round(threeyearstatermse)
+
+RMSEtable[7,2] <- round(twoyearstatermse)
+
+RMSEtable
