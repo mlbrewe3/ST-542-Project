@@ -4,6 +4,7 @@ library(reshape2)
 library(tidyverse)
 library(broom)
 library(lme4)
+library(readxl)
 
 ##Read in data
 threeyear <- read.csv('ThreeYearData.csv')
@@ -70,14 +71,14 @@ twoyearcountyvalues <- mutate(twoyear2019county, ped = twoyearcountyped)
 
 
 ##Predictions for state
-fouryearstateped <- predict(fouryearstatemodel, fouryear2019stateavg)
+fouryearstateped <- predict(fouryearstatemodel, ungroup(fouryear2019stateavg))
 
-fouryearstatevalues <- mutate(fouryear2019stateavg, ped = fouryearstateped)
+fouryearstatevalues <- fouryear2019stateavg %>% ungroup() %>% mutate(ped = fouryearstateped)
 
-threeyearstateped <- predict(threeyearstatemodel, threeyear2019stateavg)
+threeyearstateped <- predict(threeyearstatemodel, ungroup(threeyear2019stateavg))
 
-threeyearstatevalues <- mutate(threeyear2019stateavg, ped = threeyearstateped)
+threeyearstatevalues <- threeyear2019stateavg %>% ungroup() %>% mutate(ped = threeyearstateped)
 
-twoyearstateped <- predict(twoyearstatemodel, twoyear2019stateavg)
+twoyearstateped <- predict(twoyearstatemodel, ungroup(twoyear2019stateavg))
 
-twoyearstatevalues <- mutate(twoyear2019stateavg, ped = twoyearstateped)
+twoyearstatevalues <- twoyear2019stateavg %>% ungroup() %>% mutate(ped = twoyearstateped)
