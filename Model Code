@@ -4,7 +4,6 @@ library(reshape2)
 library(tidyverse)
 library(broom)
 library(lme4)
-library(readxl)
 
 ##Read in data
 threeyear <- read.csv('ThreeYearData.csv')
