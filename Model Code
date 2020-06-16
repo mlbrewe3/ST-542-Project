@@ -72,12 +72,12 @@ twoyearcountyvalues <- mutate(twoyear2019county, ped = twoyearcountyped)
 ##Predictions for state
 fouryearstateped <- predict(fouryearstatemodel, fouryear2019stateavg)
 
-fouryearstatevalues <- mutate(fouryear2019stateavg, ped = fouryearstateped)
+fouryearstatevalues <- fouryear2019stateavg %>% ungroup() %>% mutate(ped = fouryearstateped)
 
 threeyearstateped <- predict(threeyearstatemodel, threeyear2019stateavg)
 
-threeyearstatevalues <- mutate(threeyear2019stateavg, ped = threeyearstateped)
+threeyearstatevalues <- threeyear2019stateavg %>% ungroup() %>% mutate(ped = threeyearstateped)
 
 twoyearstateped <- predict(twoyearstatemodel, twoyear2019stateavg)
 
-twoyearstatevalues <- mutate(twoyear2019stateavg, ped = twoyearstateped)
+twoyearstatevalues <- twoyear2019stateavg %>% ungroup() %>% mutate(ped = twoyearstateped)
